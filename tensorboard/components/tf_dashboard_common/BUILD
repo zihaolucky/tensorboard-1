@@ -12,7 +12,6 @@ ts_web_library(
         "run-color-style.html",
         "scrollbar-style.html",
         "tensorboard-color.html",
-        "tf-collapsable-pane.html",
         "tf-dashboard-layout.html",
         "tf-downloader.html",
         "tf-multi-checkbox.html",
@@ -23,6 +22,7 @@ ts_web_library(
         "tf-regex-group.ts",
     ],
     path = "/tf-dashboard-common",
+    visibility = ["//visibility:public"],
     deps = [
         "//tensorboard/components/tf_backend",
         "//tensorboard/components/tf_color_scale",
@@ -52,7 +52,6 @@ ts_web_library(
 ts_web_library(
     name = "demo",
     srcs = [
-        "tf-collapsable-pane-demo.html",
         "tf-multi-checkbox-demo.html",
         "tf-regex-group-demo.html",
     ],
@@ -91,4 +90,3 @@ tensorboard_webcomponent_library(
         "//third_party/javascript/polymer/v1/polymer:lib",
     ],
 )
-

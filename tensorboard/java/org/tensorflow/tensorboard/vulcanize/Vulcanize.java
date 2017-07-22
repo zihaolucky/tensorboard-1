@@ -412,9 +412,16 @@ public final class Vulcanize {
               // part of our build process.
               return CheckLevel.OFF;
             }
+            if (error.getDefaultLevel() == CheckLevel.WARNING
+                && (error.sourceName.startsWith("/iron-")
+                    || error.sourceName.startsWith("/neon-")
+                    || error.sourceName.startsWith("/paper-"))) {
+              // Suppress warnings in the Polymer standard libraries.
+              return CheckLevel.OFF;
+            }
             if (error.sourceName.startsWith("javascript/externs")
                 || error.sourceName.contains("com_google_javascript_closure_compiler_externs")) {
-              // TODO(jart): Figure out why these "mismatch of the removeEventListener property on
+              // TODO(@jart): Figure out why these "mismatch of the removeEventListener property on
               //             type" warnings are showing up.
               //             https://github.com/google/closure-compiler/pull/1959
               return CheckLevel.OFF;
@@ -424,11 +431,11 @@ public final class Vulcanize {
             }
             if (error.sourceName.startsWith("/tf-graph")
                 && error.getType().key.equals("JSC_VAR_MULTIPLY_DECLARED_ERROR")) {
-              return CheckLevel.OFF; // TODO(jart): Remove when tf-graph is ES6 modules.
+              return CheckLevel.OFF; // TODO(@jart): Remove when tf-graph is ES6 modules.
             }
             if (error.getType().key.equals("JSC_POLYMER_UNQUALIFIED_BEHAVIOR")
                 || error.getType().key.equals("JSC_POLYMER_UNANNOTATED_BEHAVIOR")) {
-              return CheckLevel.OFF; // TODO(jart): What is wrong with this thing?
+              return CheckLevel.OFF; // TODO(@jart): What is wrong with this thing?
             }
             Collection<String> codes = suppressions.get(Webpath.get(error.sourceName));
             if (codes.contains("*") || codes.contains(error.getType().key)) {

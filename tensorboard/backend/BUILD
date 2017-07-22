@@ -14,7 +14,7 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         ":json_util",
-        ":compat",
+        "//tensorboard:expect_tensorflow_installed",
         "@org_pocoo_werkzeug//:werkzeug",
         "@six_archive//:six",
     ],
@@ -27,7 +27,7 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":http_util",
-        ":compat",
+        "//tensorboard:expect_tensorflow_installed",
         "@org_pocoo_werkzeug//:werkzeug",
         "@six_archive//:six",
     ],
@@ -39,7 +39,7 @@ py_library(
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
     deps = [
-        ":compat",
+        "//tensorboard:expect_tensorflow_installed",
     ],
 )
 
@@ -50,7 +50,7 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":json_util",
-        ":compat",
+        "//tensorboard:expect_tensorflow_installed",
     ],
 )
 
@@ -61,8 +61,8 @@ py_library(
     srcs_version = "PY2AND3",
     deps = [
         ":http_util",
-        ":compat",
         "//tensorboard:expect_sqlite3_installed",
+        "//tensorboard:expect_tensorflow_installed",
         "//tensorboard/backend/event_processing:event_accumulator",
         "//tensorboard/backend/event_processing:event_multiplexer",
         "//tensorboard/plugins/core:core_plugin",
@@ -78,8 +78,8 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":application",
-        ":compat",
         "//tensorboard",
+        "//tensorboard:expect_tensorflow_installed",
         "//tensorboard/backend/event_processing:event_multiplexer",
         "//tensorboard/plugins:base_plugin",
         "@org_pocoo_werkzeug//:werkzeug",
@@ -92,36 +92,6 @@ py_library(
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
     deps = [
-        ":compat",
-    ],
-)
-
-py_library(
-    name = "flags",
-    srcs = ["flags.py"],
-    srcs_version = "PY2AND3",
-    visibility = ["//visibility:public"],
-    deps = [
-    ],
-)
-
-py_library(
-    name = "app",
-    srcs = ["app.py"],
-    srcs_version = "PY2AND3",
-    visibility = ["//visibility:public"],
-    deps = [
-        ":flags",
-    ],
-)
-
-py_library(
-    name = "compat",
-    srcs = ["compat.py"],
-    srcs_version = "PY2AND3",
-    visibility = ["//visibility:public"],
-    deps = [
-        "@six_archive//:six",
-        "//tensorboard:expect_numpy_installed",
+        "//tensorboard:expect_tensorflow_installed",
     ],
 )

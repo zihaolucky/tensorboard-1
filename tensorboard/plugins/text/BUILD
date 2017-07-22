@@ -12,17 +12,15 @@ py_library(
     name = "text_plugin",
     srcs = ["text_plugin.py"],
     srcs_version = "PY2AND3",
-    visibility = [
-        "//tensorboard:internal",
-    ],
+    visibility = ["//visibility:public"],
     deps = [
         "//tensorboard:expect_tensorflow_installed",
         "//tensorboard/backend:http_util",
         "//tensorboard/plugins:base_plugin",
         "@org_mozilla_bleach",
-        "@org_pocoo_werkzeug//:werkzeug",
+        "@org_pocoo_werkzeug",
         "@org_pythonhosted_markdown",
-        "@six_archive//:six",
+        "@org_pythonhosted_six",
     ],
 )
 
@@ -38,7 +36,7 @@ py_test(
         "//tensorboard/backend:application",
         "//tensorboard/backend/event_processing:event_multiplexer",
         "//tensorboard/plugins:base_plugin",
-        "@org_pocoo_werkzeug//:werkzeug",
-        "@six_archive//:six",
+        "@org_pocoo_werkzeug",
+        "@org_pythonhosted_six",
     ],
 )

@@ -27,7 +27,6 @@ import re
 import sqlite3
 import threading
 import time
-import logging as base_logging
 
 import six
 from six.moves.urllib import parse as urlparse
@@ -168,7 +167,7 @@ class TensorBoardWSGI(object):
       except Exception as e:  # pylint: disable=broad-except
         if type(plugin) is core_plugin.CorePlugin:  # pylint: disable=unidiomatic-typecheck
           raise e
-        base_logging.warning('Plugin %s failed. Exception: %s',
+        tf.logging.warning('Plugin %s failed. Exception: %s',
                            plugin.plugin_name, str(e))
         continue
       for route, app in plugin_apps.items():
@@ -220,7 +219,7 @@ class TensorBoardWSGI(object):
     if clean_path in self.data_applications:
       return self.data_applications[clean_path](environ, start_response)
     else:
-      base_logging.warning('path %s not found, sending 404', clean_path)
+      tf.logging.warning('path %s not found, sending 404', clean_path)
       return http_util.Respond(request, 'Not found', 'text/plain', code=404)(
           environ, start_response)
     # pylint: enable=too-many-function-args
@@ -276,13 +275,13 @@ def reload_multiplexer(multiplexer, path_to_run):
       name is interpreted as a run name equal to the path.
   """
   start = time.time()
-  base_logging.info('TensorBoard reload process beginning')
+  tf.logging.info('TensorBoard reload process beginning')
   for (path, name) in six.iteritems(path_to_run):
     multiplexer.AddRunsFromDirectory(path, name)
-  base_logging.info('TensorBoard reload process: Reload the whole Multiplexer')
+  tf.logging.info('TensorBoard reload process: Reload the whole Multiplexer')
   multiplexer.Reload()
   duration = time.time() - start
-  base_logging.info('TensorBoard done reloading. Load took %0.3f secs', duration)
+  tf.logging.info('TensorBoard done reloading. Load took %0.3f secs', duration)
 
 
 def start_reloading_multiplexer(multiplexer, path_to_run, load_interval):
@@ -327,7 +326,7 @@ def get_default_assets_zip_provider():
   path = os.path.join(
       tf.resource_loader.get_data_files_path(), os.pardir, 'webfiles.zip')
   if not os.path.exists(path):
-    base_logging.warning('webfiles.zip static assets not found: %s', path)
+    tf.logging.warning('webfiles.zip static assets not found: %s', path)
     return None
   return lambda: open(path, 'rb')
 

@@ -83,7 +83,7 @@ py_library(
         ":plugin_asset_util",
         ":reservoir",
         "//tensorboard:expect_tensorflow_installed",
-        "//tensorboard/plugins/distributions:compressor",
+        "//tensorboard/plugins/distribution:compressor",
     ],
 )
 
@@ -95,7 +95,7 @@ py_test(
     deps = [
         ":event_accumulator",
         "//tensorboard:expect_tensorflow_installed",
-        "//tensorboard/plugins/distributions:compressor",
+        "//tensorboard/plugins/distribution:compressor",
     ],
 )
 
@@ -109,7 +109,7 @@ py_library(
         ":event_accumulator",
         ":io_wrapper",
         "//tensorboard:expect_tensorflow_installed",
-        "@six_archive//:six",
+        "@org_pythonhosted_six",
     ],
 )
 

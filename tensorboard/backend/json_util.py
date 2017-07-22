@@ -29,7 +29,7 @@ from __future__ import print_function
 
 import math
 
-import tensorflow as tf
+from tensorboard.backend import compat
 
 
 _INFINITY = float('inf')
@@ -63,7 +63,7 @@ def Cleanse(obj, encoding='utf-8'):
     else:
       return obj
   elif isinstance(obj, bytes):
-    return tf.compat.as_text(obj, encoding)
+    return compat.as_text(obj, encoding)
   elif isinstance(obj, (list, tuple)):
     return [Cleanse(i, encoding) for i in obj]
   elif isinstance(obj, set):

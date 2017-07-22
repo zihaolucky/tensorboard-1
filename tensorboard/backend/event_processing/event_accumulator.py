@@ -20,9 +20,12 @@ from __future__ import print_function
 import collections
 import os
 import threading
+import logging as base_logging
 
+#TODO. metaGraph, GraphDef proto
 import tensorflow as tf
 
+from tensorboard.backend import compat
 from tensorboard.backend.event_processing import directory_watcher
 from tensorboard.backend.event_processing import event_file_loader
 from tensorboard.backend.event_processing import plugin_asset_util
@@ -112,7 +115,7 @@ def IsTensorFlowEventsFile(path):
   """
   if not path:
     raise ValueError('Path must be a nonempty string')
-  return 'tfevents' in tf.compat.as_str_any(os.path.basename(path))
+  return 'tfevents' in compat.as_str_any(os.path.basename(path))
 
 
 class EventAccumulator(object):
@@ -319,7 +322,7 @@ class EventAccumulator(object):
       new_file_version = _ParseFileVersion(event.file_version)
       if self.file_version and self.file_version != new_file_version:
         ## This should not happen.
-        tf.logging.warn(('Found new file_version for event.proto. This will '
+        base_logging.warn(('Found new file_version for event.proto. This will '
                          'affect purging logic for TensorFlow restarts. '
                          'Old: {0} New: {1}').format(self.file_version,
                                                      new_file_version))
@@ -335,7 +338,7 @@ class EventAccumulator(object):
     # inside the meta_graph_def.
     if event.HasField('graph_def'):
       if self._graph is not None:
-        tf.logging.warn(
+        base_logging.warn(
             ('Found more than one graph event per run, or there was '
              'a metagraph containing a graph_def, as well as one or '
              'more graph events.  Overwriting the graph with the '
@@ -344,7 +347,7 @@ class EventAccumulator(object):
       self._graph_from_metagraph = False
     elif event.HasField('meta_graph_def'):
       if self._meta_graph is not None:
-        tf.logging.warn(('Found more than one metagraph event per run. '
+        base_logging.warn(('Found more than one metagraph event per run. '
                          'Overwriting the metagraph with the newest event.'))
       self._meta_graph = event.meta_graph_def
       if self._graph is None or self._graph_from_metagraph:
@@ -354,7 +357,7 @@ class EventAccumulator(object):
         meta_graph.ParseFromString(self._meta_graph)
         if meta_graph.graph_def:
           if self._graph is not None:
-            tf.logging.warn(
+            base_logging.warn(
                 ('Found multiple metagraphs containing graph_defs,'
                  'but did not find any graph events.  Overwriting the '
                  'graph with the newest metagraph version.'))
@@ -363,7 +366,7 @@ class EventAccumulator(object):
     elif event.HasField('tagged_run_metadata'):
       tag = event.tagged_run_metadata.tag
       if tag in self._tagged_metadata:
-        tf.logging.warn('Found more than one "run metadata" event with tag ' +
+        base_logging.warn('Found more than one "run metadata" event with tag ' +
                         tag + '. Overwriting it with the newest event.')
       self._tagged_metadata[tag] = event.tagged_run_metadata.run_metadata
     elif event.HasField('summary'):
@@ -703,7 +706,7 @@ class EventAccumulator(object):
       purge_msg = _GetPurgeMessage(self.most_recent_step,
                                    self.most_recent_wall_time, event.step,
                                    event.wall_time, *expired_per_type)
-      tf.logging.warn(purge_msg)
+      base_logging.warn(purge_msg)
 
 
 def _GetPurgeMessage(most_recent_step, most_recent_wall_time, event_step,
@@ -749,7 +752,7 @@ def _ParseFileVersion(file_version):
   except ValueError:
     ## This should never happen according to the definition of file_version
     ## specified in event.proto.
-    tf.logging.warn(
+    base_logging.warn(
         ('Invalid event.proto file_version. Defaulting to use of '
          'out-of-order event.step logic for purging expired events.'))
     return -1

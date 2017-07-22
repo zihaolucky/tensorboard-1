@@ -116,8 +116,10 @@ import collections
 import itertools
 import os
 
+#TODO. gfile
 import tensorflow as tf
 
+from tensorboard.backend import app
 from tensorboard.backend.event_processing import event_accumulator
 from tensorboard.backend.event_processing import event_file_loader
 from tensorboard.backend.event_processing import event_multiplexer
@@ -425,4 +427,4 @@ def inspect(logdir='', event_file='', tag=''):
 
 
 if __name__ == '__main__':
-  tf.app.run()
+  app.run()

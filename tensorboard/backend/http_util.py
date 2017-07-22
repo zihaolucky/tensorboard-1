@@ -26,10 +26,10 @@ import time
 import wsgiref.handlers
 
 import six
-import tensorflow as tf
 from werkzeug import wrappers
 
 from tensorboard.backend import json_util
+from tensorboard.backend import compat
 
 
 _EXTRACT_MIMETYPE_PATTERN = re.compile(r'^[^;\s]*')
@@ -115,8 +115,8 @@ def Respond(request,
     content = json.dumps(json_util.Cleanse(content, encoding),
                          ensure_ascii=not charset_match)
   if charset != encoding:
-    content = tf.compat.as_text(content, encoding)
-  content = tf.compat.as_bytes(content, charset)
+    content = compat.as_text(content, encoding)
+  content = compat.as_bytes(content, charset)
   if textual and not charset_match and mimetype not in _JSON_MIMETYPES:
     content_type += '; charset=' + charset
   if (not content_encoding and textual and

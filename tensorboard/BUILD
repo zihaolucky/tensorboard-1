@@ -8,6 +8,8 @@ load("//tensorboard/defs:zipper.bzl", "tensorboard_zip_file")
 
 licenses(["notice"])  # Apache 2.0
 
+exports_files(["LICENSE"])  # Needed for internal repo.
+
 package_group(
     name = "internal",
     packages = ["//tensorboard/..."],
@@ -95,11 +97,74 @@ filegroup(
 )
 
 py_library(
+    name = "data_compat",
+    srcs = ["data_compat.py"],
+    srcs_version = "PY2AND3",
+    visibility = ["//visibility:public"],
+    deps = [
+        "//tensorboard:expect_tensorflow_installed",
+        "//tensorboard/plugins/histogram:metadata",
+    ],
+)
+
+py_test(
+    name = "data_compat_test",
+    size = "small",
+    srcs = ["data_compat_test.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":data_compat",
+        "//tensorboard:expect_tensorflow_installed",
+        "//tensorboard/plugins/histogram:metadata",
+        "//tensorboard/plugins/histogram:summary",
+    ],
+)
+
+py_library(
     name = "db",
     srcs = ["db.py"],
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
     deps = ["//tensorboard:expect_sqlite3_installed"],
+)
+
+py_test(
+    name = "db_test",
+    size = "medium",
+    timeout = "short",
+    srcs = ["db_test.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":db",
+        ":test_util",
+        "//tensorboard:expect_sqlite3_installed",
+        "//tensorboard:expect_tensorflow_installed",
+        "@org_pythonhosted_six",
+    ],
+)
+
+py_library(
+    name = "plugin_util",
+    srcs = ["plugin_util.py"],
+    srcs_version = "PY2AND3",
+    visibility = ["//visibility:public"],
+    deps = [
+        "@org_mozilla_bleach",
+        "@org_pythonhosted_markdown",
+        "@org_pythonhosted_six",
+    ],
+)
+
+py_test(
+    name = "plugin_util_test",
+    size = "small",
+    srcs = ["plugin_util_test.py"],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":plugin_util",
+        "//tensorboard:expect_tensorflow_installed",
+        "@org_pythonhosted_six",
+    ],
 )
 
 py_library(

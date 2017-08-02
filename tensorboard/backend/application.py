@@ -22,6 +22,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import contextlib
+import json
 import os
 import re
 import sqlite3
@@ -33,6 +35,7 @@ from six.moves.urllib import parse as urlparse
 import tensorflow as tf
 from werkzeug import wrappers
 
+from tensorboard import db
 from tensorboard.backend import http_util
 from tensorboard.backend.event_processing import event_accumulator
 from tensorboard.backend.event_processing import event_multiplexer
@@ -84,6 +87,12 @@ def standard_tensorboard_wsgi(
       size_guidance=DEFAULT_SIZE_GUIDANCE,
       purge_orphaned_data=purge_orphaned_data)
   db_module, db_connection_provider = get_database_info(db_uri)
+  if db_connection_provider is not None:
+    with contextlib.closing(db_connection_provider()) as db_conn:
+      with db_conn:
+        schema = db.Schema(db_conn)
+        schema.create_tables()
+        schema.create_indexes()
   context = base_plugin.TBContext(
       db_module=db_module,
       db_connection_provider=db_connection_provider,
@@ -143,8 +152,9 @@ class TensorBoardWSGI(object):
     self._plugins = plugins
 
     self.data_applications = {
-        # TODO(chizeng): Delete this RPC once we have skylark rules that obviate
-        # the need for the frontend to determine which plugins are active.
+        # TODO(@chihuahua): Delete this RPC once we have skylark rules that
+        # obviate the need for the frontend to determine which plugins are
+        # active.
         DATA_PREFIX + PLUGINS_LISTING_ROUTE: self._serve_plugins_listing,
     }
 
@@ -166,7 +176,7 @@ class TensorBoardWSGI(object):
         plugin_apps = plugin.get_plugin_apps()
       except Exception as e:  # pylint: disable=broad-except
         if type(plugin) is core_plugin.CorePlugin:  # pylint: disable=unidiomatic-typecheck
-          raise e
+          raise
         tf.logging.warning('Plugin %s failed. Exception: %s',
                            plugin.plugin_name, str(e))
         continue
@@ -308,7 +318,7 @@ def start_reloading_multiplexer(multiplexer, path_to_run, load_interval):
       reload_multiplexer(multiplexer, path_to_run)
       time.sleep(load_interval)
 
-  thread = threading.Thread(target=_reload_forever)
+  thread = threading.Thread(target=_reload_forever, name='Reloader')
   thread.daemon = True
   thread.start()
   return thread
@@ -375,7 +385,7 @@ def create_sqlite_connection_provider(db_uri):
     raise ValueError('Memory mode SQLite not supported: ' + db_uri)
   path = os.path.expanduser(uri.path)
   params = _get_connect_params(uri.query)
-  # TODO(jart): Add thread-local pooling.
+  # TODO(@jart): Add thread-local pooling.
   return lambda: sqlite3.connect(path, **params)
 
 
@@ -383,7 +393,7 @@ def _get_connect_params(query):
   params = urlparse.parse_qs(query)
   if any(len(v) > 2 for v in params.values()):
     raise ValueError('DB URI params list has duplicate keys: ' + query)
-  return {k: v[0] for k, v in params.items()}
+  return {k: json.loads(v[0]) for k, v in params.items()}
 
 
 def _clean_path(path):

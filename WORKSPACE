@@ -1,5 +1,10 @@
 workspace(name = "org_tensorflow_tensorboard")
 
+local_repository(
+    name = "org_tensorflow",
+    path = "tensorflow",
+)
+
 http_archive(
     name = "io_bazel_rules_closure",
     sha256 = "e9e2538b1f7f27de73fa2914b7d2cb1ce2ac01d1abe8390cfe51fb2558ef8b27",
@@ -9,6 +14,9 @@ http_archive(
         "https://github.com/bazelbuild/rules_closure/archive/4c559574447f90751f05155faba4f3344668f666.tar.gz",  # 2017-06-21
     ],
 )
+
+load("@org_tensorflow//tensorflow:workspace.bzl", "tf_workspace")
+tf_workspace(tf_repo_name = "org_tensorflow")
 
 load("@io_bazel_rules_closure//closure:defs.bzl", "closure_repositories")
 

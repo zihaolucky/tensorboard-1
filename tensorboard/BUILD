@@ -77,13 +77,14 @@ py_library(
     visibility = ["//visibility:public"],
 )
 
-py_library(
-    name = "expect_tensorflow_installed",
-    # This is a dummy rule used as a TensorFlow dependency in open-source.
-    # We expect TensorFlow to already be installed on the system, e.g. via
-    # `pip install tensorflow`
-    visibility = ["//visibility:public"],
-)
+#TODO. remove and replace with external dep(org_tensorflow).
+#py_library(
+#    name = "expect_tensorflow_installed",
+#    # This is a dummy rule used as a TensorFlow dependency in open-source.
+#    # We expect TensorFlow to already be installed on the system, e.g. via
+#    # `pip install tensorflow`
+#    visibility = ["//visibility:public"],
+#)
 
 filegroup(
     name = "ts_web_library_default_typings",
@@ -102,7 +103,8 @@ py_library(
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
     deps = [
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:framework",
         "//tensorboard/plugins/histogram:metadata",
     ],
 )
@@ -114,7 +116,8 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":data_compat",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:framework",
         "//tensorboard/plugins/histogram:metadata",
         "//tensorboard/plugins/histogram:summary",
     ],
@@ -138,7 +141,8 @@ py_test(
         ":db",
         ":test_util",
         "//tensorboard:expect_sqlite3_installed",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:framework",
         "@org_pythonhosted_six",
     ],
 )
@@ -162,7 +166,8 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":plugin_util",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:framework",
         "@org_pythonhosted_six",
     ],
 )
@@ -172,7 +177,10 @@ py_library(
     srcs = ["util.py"],
     srcs_version = "PY2AND3",
     visibility = ["//visibility:public"],
-    deps = ["//tensorboard:expect_tensorflow_installed"],
+    deps = [
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:util",
+    ],
 )
 
 py_test(
@@ -184,6 +192,7 @@ py_test(
         ":test_util",
         ":util",
         "//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:util",
         "@org_pythonhosted_six",
     ],
 )
@@ -195,7 +204,9 @@ py_library(
     visibility = ["//visibility:public"],
     deps = [
         ":util",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:framework",
         "@org_pythonhosted_six",
     ],
 )
@@ -209,7 +220,8 @@ py_test(
         ":loader",
         ":test_util",
         ":util",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:util",
     ],
 )
 
@@ -220,6 +232,7 @@ py_library(
     srcs_version = "PY2AND3",
     deps = [
         ":util",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:util",
     ],
 )

@@ -63,7 +63,7 @@ py_library(
     srcs = ["event_file_loader.py"],
     srcs_version = "PY2AND3",
     deps = [
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
         "@org_tensorflow//tensorflow/python:platform",
     ],
 )

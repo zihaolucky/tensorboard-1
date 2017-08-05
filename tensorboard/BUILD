@@ -29,9 +29,10 @@ py_binary(
         "//tensorboard/plugins/audio:audio_plugin",
         "//tensorboard/plugins/core:core_plugin",
         "//tensorboard/plugins/distribution:distributions_plugin",
-        "//tensorboard/plugins/graph:graphs_plugin",
+        #"//tensorboard/plugins/graph:graphs_plugin",
         "//tensorboard/plugins/histogram:histograms_plugin",
         "//tensorboard/plugins/image:images_plugin",
+        #TODO(zihaolucky). re-open after we figure out how to use.
         #"//tensorboard/plugins/profile:profile_plugin",
         #"//tensorboard/plugins/projector:projector_plugin",
         "//tensorboard/plugins/scalar:scalars_plugin",
@@ -77,7 +78,6 @@ py_library(
     visibility = ["//visibility:public"],
 )
 
-#TODO. remove and replace with external dep(org_tensorflow).
 #py_library(
 #    name = "expect_tensorflow_installed",
 #    # This is a dummy rule used as a TensorFlow dependency in open-source.

@@ -27,7 +27,7 @@ import socket
 import tempfile
 
 import six
-import tensorflow as tf
+from tensorflow.python.platform import test
 from werkzeug import test as werkzeug_test
 from werkzeug import wrappers
 
@@ -71,7 +71,7 @@ class FakePlugin(base_plugin.TBPlugin):
     return self._is_active_value
 
 
-class TensorboardServerTest(tf.test.TestCase):
+class TensorboardServerTest(test.TestCase):
   _only_use_meta_graph = False  # Server data contains only a GraphDef
 
   def setUp(self):
@@ -106,7 +106,7 @@ class TensorboardServerTest(tf.test.TestCase):
     self.assertEqual(parsed_object, {'foo': True, 'bar': False})
 
 
-class TensorboardServerPluginNameTest(tf.test.TestCase):
+class TensorboardServerPluginNameTest(test.TestCase):
 
   def _test(self, name, should_be_okay):
     temp_dir = tempfile.mkdtemp(prefix=self.get_temp_dir())
@@ -146,7 +146,7 @@ class TensorboardServerPluginNameTest(tf.test.TestCase):
     self._test('Scalar-Dashboard_3000.1', True)
 
 
-class TensorboardServerPluginRouteTest(tf.test.TestCase):
+class TensorboardServerPluginRouteTest(test.TestCase):
 
   def _test(self, route, should_be_okay):
     temp_dir = tempfile.mkdtemp(prefix=self.get_temp_dir())
@@ -184,7 +184,7 @@ class TensorboardServerUsingMetagraphOnlyTest(TensorboardServerTest):
   _only_use_meta_graph = True  # Server data contains only a MetaGraphDef
 
 
-class ParseEventFilesSpecTest(tf.test.TestCase):
+class ParseEventFilesSpecTest(test.TestCase):
 
   def testRunName(self):
     logdir = 'lol:/cat'
@@ -237,7 +237,7 @@ class ParseEventFilesSpecTest(tf.test.TestCase):
     self.assertEqual(application.parse_event_files_spec(logdir), expected)
 
 
-class TensorBoardPluginsTest(tf.test.TestCase):
+class TensorBoardPluginsTest(test.TestCase):
 
   def testPluginsAdded(self):
 
@@ -270,7 +270,7 @@ class TensorBoardPluginsTest(tf.test.TestCase):
     }, app.data_applications)
 
 
-class TensorboardSimpleServerConstructionTest(tf.test.TestCase):
+class TensorboardSimpleServerConstructionTest(test.TestCase):
   """Tests that the default HTTP server is constructed without error.
 
   Mostly useful for IPv4/IPv6 testing. This test should run with only IPv4, only
@@ -314,7 +314,7 @@ class TensorboardSimpleServerConstructionTest(tf.test.TestCase):
     self.assertTrue(one_passed)  # We expect either IPv4 or IPv6 to be supported
 
 
-class TensorBoardApplcationConstructionTest(tf.test.TestCase):
+class TensorBoardApplcationConstructionTest(test.TestCase):
 
   def testExceptions(self):
     logdir = '/fake/foo'
@@ -340,7 +340,7 @@ class TensorBoardApplcationConstructionTest(tf.test.TestCase):
       application.TensorBoardWSGIApp(logdir, plugins, multiplexer, 0)
 
 
-class DbTest(tf.test.TestCase):
+class DbTest(test.TestCase):
 
   def testSqliteDb(self):
     db_uri = 'sqlite:' + os.path.join(self.get_temp_dir(), 'db')
@@ -405,4 +405,4 @@ class DbTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

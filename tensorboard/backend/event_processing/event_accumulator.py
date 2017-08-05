@@ -21,7 +21,12 @@ import collections
 import os
 import threading
 
-import tensorflow as tf
+from tensorflow.python.util import compat
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.core.framework import graph_pb2
+from tensorflow.core.protobuf.meta_graph_pb2 import meta_graph_pb2
+from tensorflow.core.util.event_pb2 import SessionLog
+from tensorflow.core.protobuf import config_pb2
 
 from tensorboard.backend.event_processing import directory_watcher
 from tensorboard.backend.event_processing import event_file_loader
@@ -112,7 +117,7 @@ def IsTensorFlowEventsFile(path):
   """
   if not path:
     raise ValueError('Path must be a nonempty string')
-  return 'tfevents' in tf.compat.as_str_any(os.path.basename(path))
+  return 'vents' in compat.as_str_any(os.path.basename(path))
 
 
 class EventAccumulator(object):
@@ -150,8 +155,8 @@ class EventAccumulator(object):
         a float containing seconds from the UNIX epoch, or -1 if
         nothing has been loaded yet. This should only be accessed from
         the thread that calls Reload.
-    path: A file path to a directory containing tf events files, or a single
-        tf events file. The accumulator will load events from this path.
+    path: A file path to a directory containing events files, or a single
+        events file. The accumulator will load events from this path.
     scalars: A reservoir.Reservoir of scalar summaries.
     tensors: A reservoir.Reservoir of tensor summaries.
 
@@ -166,8 +171,8 @@ class EventAccumulator(object):
     """Construct the `EventAccumulator`.
 
     Args:
-      path: A file path to a directory containing tf events files, or a single
-        tf events file. The accumulator will load events from this path.
+      path: A file path to a directory containing events files, or a single
+        events file. The accumulator will load events from this path.
       size_guidance: Information on how much data the EventAccumulator should
         store in memory. The DEFAULT_SIZE_GUIDANCE tries not to store too much
         so as to avoid OOMing the client. The size_guidance should be a map
@@ -334,7 +339,7 @@ class EventAccumulator(object):
       new_file_version = _ParseFileVersion(event.file_version)
       if self.file_version and self.file_version != new_file_version:
         ## This should not happen.
-        tf.logging.warn(('Found new file_version for event.proto. This will '
+        logging.warn(('Found new file_version for event.proto. This will '
                          'affect purging logic for TensorFlow restarts. '
                          'Old: {0} New: {1}').format(self.file_version,
                                                      new_file_version))
@@ -350,7 +355,7 @@ class EventAccumulator(object):
     # inside the meta_graph_def.
     if event.HasField('graph_def'):
       if self._graph is not None:
-        tf.logging.warn(
+        logging.warn(
             ('Found more than one graph event per run, or there was '
              'a metagraph containing a graph_def, as well as one or '
              'more graph events.  Overwriting the graph with the '
@@ -359,17 +364,17 @@ class EventAccumulator(object):
       self._graph_from_metagraph = False
     elif event.HasField('meta_graph_def'):
       if self._meta_graph is not None:
-        tf.logging.warn(('Found more than one metagraph event per run. '
+        logging.warn(('Found more than one metagraph event per run. '
                          'Overwriting the metagraph with the newest event.'))
       self._meta_graph = event.meta_graph_def
       if self._graph is None or self._graph_from_metagraph:
         # We may have a graph_def in the metagraph.  If so, and no
         # graph_def is directly available, use this one instead.
-        meta_graph = tf.MetaGraphDef()
+        meta_graph = meta_graph_pb2.MetaGraphDef()
         meta_graph.ParseFromString(self._meta_graph)
         if meta_graph.graph_def:
           if self._graph is not None:
-            tf.logging.warn(
+            logging.warn(
                 ('Found multiple metagraphs containing graph_defs,'
                  'but did not find any graph events.  Overwriting the '
                  'graph with the newest metagraph version.'))
@@ -378,7 +383,7 @@ class EventAccumulator(object):
     elif event.HasField('tagged_run_metadata'):
       tag = event.tagged_run_metadata.tag
       if tag in self._tagged_metadata:
-        tf.logging.warn('Found more than one "run metadata" event with tag ' +
+        logging.warn('Found more than one "run metadata" event with tag ' +
                         tag + '. Overwriting it with the newest event.')
       self._tagged_metadata[tag] = event.tagged_run_metadata.run_metadata
     elif event.HasField('summary'):
@@ -453,7 +458,7 @@ class EventAccumulator(object):
     Returns:
       The `graph_def` proto.
     """
-    graph = tf.GraphDef()
+    graph = graph_pb2.GraphDef()
     if self._graph is not None:
       graph.ParseFromString(self._graph)
       return graph
@@ -470,7 +475,7 @@ class EventAccumulator(object):
     """
     if self._meta_graph is None:
       raise ValueError('There is no metagraph in this EventAccumulator')
-    meta_graph = tf.MetaGraphDef()
+    meta_graph = meta_graph_pb2.MetaGraphDef()
     meta_graph.ParseFromString(self._meta_graph)
     return meta_graph
 
@@ -489,7 +494,7 @@ class EventAccumulator(object):
     if tag not in self._tagged_metadata:
       raise ValueError('There is no run metadata with this tag name')
 
-    run_metadata = tf.RunMetadata()
+    run_metadata = config_pb2.RunMetadata()
     run_metadata.ParseFromString(self._tagged_metadata[tag])
     return run_metadata
 
@@ -605,7 +610,7 @@ class EventAccumulator(object):
         previously seen events with a greater event.step will be purged.
     """
     if event.HasField(
-        'session_log') and event.session_log.status == tf.SessionLog.START:
+        'session_log') and event.session_log.status == SessionLog.START:
       self._Purge(event, by_tags=False)
 
   def _CheckForOutOfOrderStepAndMaybePurge(self, event):
@@ -717,7 +722,7 @@ class EventAccumulator(object):
       purge_msg = _GetPurgeMessage(self.most_recent_step,
                                    self.most_recent_wall_time, event.step,
                                    event.wall_time, *expired_per_type)
-      tf.logging.warn(purge_msg)
+      logging.warn(purge_msg)
 
 
 def _GetPurgeMessage(most_recent_step, most_recent_wall_time, event_step,
@@ -763,7 +768,7 @@ def _ParseFileVersion(file_version):
   except ValueError:
     ## This should never happen according to the definition of file_version
     ## specified in event.proto.
-    tf.logging.warn(
+    logging.warn(
         ('Invalid event.proto file_version. Defaulting to use of '
          'out-of-order event.step logic for purging expired events.'))
     return -1

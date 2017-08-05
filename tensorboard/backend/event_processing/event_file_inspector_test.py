@@ -20,15 +20,18 @@ from __future__ import print_function
 import os
 import shutil
 
-import tensorflow as tf
+from tensorflow.core.util.event_pb2 import SessionLog
+from tensorflow.python.platform import test
+from tensorflow.core.framework import summary_pb2
+from tensorflow.python.summary import summary as summary_lib
 
 from tensorboard.backend.event_processing import event_file_inspector as efi
 
 
-class EventFileInspectorTest(tf.test.TestCase):
+class EventFileInspectorTest(test.TestCase):
 
   def setUp(self):
-    self.logdir = os.path.join(self.get_temp_dir(), 'tfevents')
+    self.logdir = os.path.join(self.get_temp_dir(), 'vents')
     self._MakeDirectoryIfNotExists(self.logdir)
 
   def tearDown(self):
@@ -45,15 +48,15 @@ class EventFileInspectorTest(tf.test.TestCase):
       subdir = os.path.join(self.logdir, subdir_)
       self._MakeDirectoryIfNotExists(subdir)
 
-      sw = tf.summary.FileWriter(subdir)
+      sw = summary_lib.summary.FileWriter(subdir)
       for datum in data:
-        summary = tf.Summary()
+        summary = summary_pb2.Summary()
         if 'simple_value' in datum:
           summary.value.add(tag=datum['tag'],
                             simple_value=datum['simple_value'])
           sw.add_summary(summary, global_step=datum['step'])
         elif 'histo' in datum:
-          summary.value.add(tag=datum['tag'], histo=tf.HistogramProto())
+          summary.value.add(tag=datum['tag'], histo=summary_pb2.HistogramProto())
           sw.add_summary(summary, global_step=datum['step'])
         elif 'session_log' in datum:
           sw.add_session_log(datum['session_log'], global_step=datum['step'])
@@ -123,31 +126,31 @@ class EventFileInspectorTest(tf.test.TestCase):
   def testSessionLogSummaries(self):
     data = [
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.START),
+            'session_log': SessionLog(status=SessionLog.START),
             'step': 0
         },
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.CHECKPOINT),
+            'session_log': SessionLog(status=SessionLog.CHECKPOINT),
             'step': 1
         },
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.CHECKPOINT),
+            'session_log': SessionLog(status=SessionLog.CHECKPOINT),
             'step': 2
         },
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.CHECKPOINT),
+            'session_log': SessionLog(status=SessionLog.CHECKPOINT),
             'step': 3
         },
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.STOP),
+            'session_log': SessionLog(status=SessionLog.STOP),
             'step': 4
         },
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.START),
+            'session_log': SessionLog(status=SessionLog.START),
             'step': 5
         },
         {
-            'session_log': tf.SessionLog(status=tf.SessionLog.STOP),
+            'session_log': SessionLog(status=SessionLog.STOP),
             'step': 6
         },
     ]
@@ -186,4 +189,4 @@ class EventFileInspectorTest(tf.test.TestCase):
                                                        (15, 3)])
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

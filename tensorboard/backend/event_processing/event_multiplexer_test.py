@@ -21,25 +21,28 @@ import os
 import os.path
 import shutil
 
-import tensorflow as tf
+from tensorflow.python.platform import gfile
+from tensorflow.python.platform import test
+from tensorflow.python.summary import event_accumulator
+from tensorflow.python.summary import event_multiplexer
 
 from tensorboard.backend.event_processing import event_accumulator
 from tensorboard.backend.event_processing import event_multiplexer
 
 
 def _AddEvents(path):
-  if not tf.gfile.IsDirectory(path):
-    tf.gfile.MakeDirs(path)
+  if not gfile.IsDirectory(path):
+    gfile.MakeDirs(path)
   fpath = os.path.join(path, 'hypothetical.tfevents.out')
-  with tf.gfile.GFile(fpath, 'w') as f:
+  with gfile.GFile(fpath, 'w') as f:
     f.write('')
     return fpath
 
 
 def _CreateCleanDirectory(path):
-  if tf.gfile.IsDirectory(path):
-    tf.gfile.DeleteRecursively(path)
-  tf.gfile.MkDir(path)
+  if gfile.IsDirectory(path):
+    gfile.DeleteRecursively(path)
+  gfile.MkDir(path)
 
 
 class _FakeAccumulator(object):
@@ -113,11 +116,11 @@ def _GetFakeAccumulator(path,
   return _FakeAccumulator(path)
 
 
-class EventMultiplexerTest(tf.test.TestCase):
+class EventMultiplexerTest(test.TestCase):
 
   def setUp(self):
     super(EventMultiplexerTest, self).setUp()
-    self.stubs = tf.test.StubOutForTesting()
+    self.stubs = test.StubOutForTesting()
 
     self.stubs.Set(event_accumulator, 'EventAccumulator', _GetFakeAccumulator)
 
@@ -206,7 +209,7 @@ class EventMultiplexerTest(tf.test.TestCase):
     self.assertEqual(x.Runs(), {}, 'loading empty directory had no effect')
 
     path1 = join(realdir, 'path1')
-    tf.gfile.MkDir(path1)
+    gfile.MkDir(path1)
     x.AddRunsFromDirectory(realdir)
     self.assertEqual(x.Runs(), {}, 'creating empty subdirectory had no effect')
 
@@ -324,7 +327,7 @@ class EventMultiplexerTest(tf.test.TestCase):
     self.assertTrue(x.GetAccumulator('run2').reload_called)
 
 
-class EventMultiplexerWithRealAccumulatorTest(tf.test.TestCase):
+class EventMultiplexerWithRealAccumulatorTest(test.TestCase):
 
   def testDeletingDirectoryRemovesRun(self):
     x = event_multiplexer.EventMultiplexer()
@@ -350,4 +353,4 @@ class EventMultiplexerWithRealAccumulatorTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

@@ -32,8 +32,10 @@ import time
 
 import six
 from six.moves.urllib import parse as urlparse
-import tensorflow as tf
 from werkzeug import wrappers
+
+from tensorflow.python.platform import logging as logging
+from tensorflow.python.platform import resource_loader
 
 from tensorboard import db
 from tensorboard.backend import http_util
@@ -177,7 +179,7 @@ class TensorBoardWSGI(object):
       except Exception as e:  # pylint: disable=broad-except
         if type(plugin) is core_plugin.CorePlugin:  # pylint: disable=unidiomatic-typecheck
           raise
-        tf.logging.warning('Plugin %s failed. Exception: %s',
+        logging.warning('Plugin %s failed. Exception: %s',
                            plugin.plugin_name, str(e))
         continue
       for route, app in plugin_apps.items():
@@ -229,7 +231,7 @@ class TensorBoardWSGI(object):
     if clean_path in self.data_applications:
       return self.data_applications[clean_path](environ, start_response)
     else:
-      tf.logging.warning('path %s not found, sending 404', clean_path)
+      logging.warning('path %s not found, sending 404', clean_path)
       return http_util.Respond(request, 'Not found', 'text/plain', code=404)(
           environ, start_response)
     # pylint: enable=too-many-function-args
@@ -285,13 +287,13 @@ def reload_multiplexer(multiplexer, path_to_run):
       name is interpreted as a run name equal to the path.
   """
   start = time.time()
-  tf.logging.info('TensorBoard reload process beginning')
+  logging.info('TensorBoard reload process beginning')
   for (path, name) in six.iteritems(path_to_run):
     multiplexer.AddRunsFromDirectory(path, name)
-  tf.logging.info('TensorBoard reload process: Reload the whole Multiplexer')
+  logging.info('TensorBoard reload process: Reload the whole Multiplexer')
   multiplexer.Reload()
   duration = time.time() - start
-  tf.logging.info('TensorBoard done reloading. Load took %0.3f secs', duration)
+  logging.info('TensorBoard done reloading. Load took %0.3f secs', duration)
 
 
 def start_reloading_multiplexer(multiplexer, path_to_run, load_interval):
@@ -334,9 +336,9 @@ def get_default_assets_zip_provider():
     paths inside the zip file are considered absolute paths on the web server.
   """
   path = os.path.join(
-      tf.resource_loader.get_data_files_path(), os.pardir, 'webfiles.zip')
+      resource_loader.get_data_files_path(), os.pardir, 'webfiles.zip')
   if not os.path.exists(path):
-    tf.logging.warning('webfiles.zip static assets not found: %s', path)
+    logging.warning('webfiles.zip static assets not found: %s', path)
     return None
   return lambda: open(path, 'rb')
 

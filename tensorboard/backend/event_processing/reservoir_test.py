@@ -18,7 +18,7 @@ from __future__ import division
 from __future__ import print_function
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
-import tensorflow as tf
+from tensorflow.python.platform import test
 
 from tensorboard.backend.event_processing import reservoir
 
@@ -110,7 +110,7 @@ class ReservoirTest(tf.test.TestCase):
     self.assertEqual(len(r.Items('key2')), 8)
 
 
-class ReservoirBucketTest(tf.test.TestCase):
+class ReservoirBucketTest(test.TestCase):
 
   def testEmptyBucket(self):
     b = reservoir._ReservoirBucket(1)
@@ -229,7 +229,7 @@ class ReservoirBucketTest(tf.test.TestCase):
     self.assertEqual(b.Items(), [x * 2 for x in xrange(99)] + [999 * 2])
 
 
-class ReservoirBucketStatisticalDistributionTest(tf.test.TestCase):
+class ReservoirBucketStatisticalDistributionTest(test.TestCase):
 
   def setUp(self):
     self.total = 1000000
@@ -276,4 +276,4 @@ class ReservoirBucketStatisticalDistributionTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

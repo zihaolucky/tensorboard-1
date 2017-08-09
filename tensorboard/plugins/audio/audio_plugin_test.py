@@ -27,9 +27,20 @@ import tempfile
 import numpy
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
-import tensorflow as tf
 from werkzeug import test as werkzeug_test
 from werkzeug import wrappers
+
+from tensorflow.python.summary import summary as summary_lib
+from tensorflow.python.summary.writer import FileWriter
+from tensorflow.python.platform import test
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python.ops import array_ops
+from tensorflow.python.framework import constant_op
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.platform import gfile
+from tensorflow.python.training import saver
+from tensorflow.core.protobuf import config_pb2
 
 from tensorboard.backend import application
 from tensorboard.backend.event_processing import event_multiplexer
@@ -37,7 +48,7 @@ from tensorboard.plugins import base_plugin
 from tensorboard.plugins.audio import audio_plugin
 
 
-class AudioPluginTest(tf.test.TestCase):
+class AudioPluginTest(test.TestCase):
 
   def setUp(self):
     self.log_dir = tempfile.mkdtemp()
@@ -47,13 +58,13 @@ class AudioPluginTest(tf.test.TestCase):
     numpy.random.seed(42)
 
     # Create audio summaries for run foo.
-    tf.reset_default_graph()
+    ops.reset_default_graph()
     sess = tf.Session()
-    placeholder = tf.placeholder(tf.float32)
-    tf.summary.audio(name="baz", tensor=placeholder, sample_rate=44100)
-    merged_summary_op = tf.summary.merge_all()
+    placeholder = array_ops.placeholder(dtypes.float32)
+    summary_lib.audio(name="baz", tensor=placeholder, sample_rate=44100)
+    merged_summary_op = summary_lib.merge_all()
     foo_directory = os.path.join(self.log_dir, "foo")
-    writer = tf.summary.FileWriter(foo_directory)
+    writer = FileWriter(foo_directory)
     writer.add_graph(sess.graph)
     for step in xrange(2):
       # The floats (sample data) range from -1 to 1.
@@ -63,13 +74,13 @@ class AudioPluginTest(tf.test.TestCase):
     writer.close()
 
     # Create audio summaries for run bar.
-    tf.reset_default_graph()
+    ops.reset_default_graph()
     sess = tf.Session()
-    placeholder = tf.placeholder(tf.float32)
-    tf.summary.audio(name="quux", tensor=placeholder, sample_rate=44100)
-    merged_summary_op = tf.summary.merge_all()
+    placeholder = array_ops.placeholder(dtypes.float32)
+    summary_lib.audio(name="quux", tensor=placeholder, sample_rate=44100)
+    merged_summary_op = summary_lib.merge_all()
     bar_directory = os.path.join(self.log_dir, "bar")
-    writer = tf.summary.FileWriter(bar_directory)
+    writer = summary_lib.FileWriter(bar_directory)
     writer.add_graph(sess.graph)
     for step in xrange(2):
       # The floats (sample data) range from -1 to 1.
@@ -157,4 +168,4 @@ class AudioPluginTest(tf.test.TestCase):
 
 
 if __name__ == "__main__":
-  tf.test.main()
+  test.main()

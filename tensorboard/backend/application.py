@@ -34,7 +34,7 @@ import six
 from six.moves.urllib import parse as urlparse
 from werkzeug import wrappers
 
-from tensorflow.python.platform import logging as logging
+from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python.platform import resource_loader
 
 from tensorboard import db

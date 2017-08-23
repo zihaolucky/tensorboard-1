@@ -24,7 +24,7 @@ import threading
 from tensorflow.python.util import compat
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.core.framework import graph_pb2
-from tensorflow.core.protobuf.meta_graph_pb2 import meta_graph_pb2
+from tensorflow.core.protobuf import meta_graph_pb2
 from tensorflow.core.util.event_pb2 import SessionLog
 from tensorflow.core.protobuf import config_pb2
 

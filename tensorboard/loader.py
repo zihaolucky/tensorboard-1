@@ -28,7 +28,13 @@ import threading
 import types  # pylint: disable=unused-import
 
 import six
-import tensorflow as tf
+
+from tensorflow.python.plarm import gfile
+from tensorflow.python.util import compat
+from tensorflow.python.platform import errors
+from tensorflow.python import pywrap_tensorflow
+from tensorflow.python.platform import resource_loader
+from tensorflow.python.platform import tf_logging as logging
 
 from tensorboard import util
 
@@ -62,7 +68,7 @@ class RecordReader(object):
     :type path: str
     :type start_offset: int
     """
-    self.path = tf.compat.as_text(path)
+    self.path = compat.as_text(path)
     self._offset = start_offset
     self._size = -1
     self._reader = None  # type: tf.pywrap_tensorflow.PyRecordReader
@@ -83,7 +89,7 @@ class RecordReader(object):
 
     :rtype: int
     """
-    size = tf.gfile.Stat(self.path).length
+    size = gfile.Stat(self.path).length
     minimum = max(self._offset, self._size)
     if size < minimum:
       raise IOError('File shrunk: %d < %d: %s' % (size, minimum, self.path))
@@ -108,9 +114,9 @@ class RecordReader(object):
     if self._reader is None:
       self._reader = self._open()
     try:
-      with tf.errors.raise_exception_on_not_ok_status() as status:
+      with errors.raise_exception_on_not_ok_status() as status:
         self._reader.GetNext(status)
-    except tf.errors.OutOfRangeError:
+    except errors.OutOfRangeError:
       # We ignore partial read exceptions, because a record may be truncated.
       # PyRecordReader holds the offset prior to the failed read, so retrying
       # will succeed.
@@ -131,10 +137,10 @@ class RecordReader(object):
     self._reader = None
 
   def _open(self):
-    with tf.errors.raise_exception_on_not_ok_status() as status:
-      return tf.pywrap_tensorflow.PyRecordReader_New(
-          tf.resource_loader.readahead_file_path(tf.compat.as_bytes(self.path)),
-          self._offset, tf.compat.as_bytes(''), status)
+    with errors.raise_exception_on_not_ok_status() as status:
+      return pywrap_tensorflow.PyRecordReader_New(
+          resource_loader.readahead_file_path(compat.as_bytes(self.path)),
+          self._offset, compat.as_bytes(''), status)
 
   def __str__(self):
     return u'RecordReader{%s}' % self.path
@@ -193,7 +199,7 @@ class BufferedRecordReader(object):
     :type clock: () -> float
     :type record_reader_factory: (str, int) -> RecordReader
     """
-    self.path = tf.compat.as_text(path)
+    self.path = compat.as_text(path)
     self._read_ahead = read_ahead
     self._stat_interval = stat_interval
     self._clock = clock
@@ -347,7 +353,7 @@ class BufferedRecordReader(object):
       self._size = self._reader.get_size()
       self._last_stat = now
     except Exception as e:  # pylint: disable=broad-except
-      tf.logging.debug('Stat failed: %s', e)
+      logging.debug('Stat failed: %s', e)
       self._read_exception = sys.exc_info()
 
   def _run(self):
@@ -358,15 +364,15 @@ class BufferedRecordReader(object):
         if self._is_closed:
           try:
             self._reader.close()
-            tf.logging.debug('Closed')
+            logging.debug('Closed')
           except Exception as e:  # pylint: disable=broad-except
             self._close_exception = sys.exc_info()
-            tf.logging.debug('Close failed: %s', e)
+            logging.debug('Close failed: %s', e)
           self._reader = None
           self._wake_up_consumers.notify_all()
           return
         if self._buffered >= self._read_ahead:
-          tf.logging.debug('Waking up to stat')
+          logging.debug('Waking up to stat')
           self._stat()
           continue
         # Calculate a good amount of data to read outside the lock.
@@ -381,7 +387,7 @@ class BufferedRecordReader(object):
       self._rebuffer(want)
 
   def _rebuffer(self, want):
-    tf.logging.debug('Waking up to read %s bytes', _localize_int(want))
+    logging.debug('Waking up to read %s bytes', _localize_int(want))
     records = []
     read_exception = self._read_exception
     if read_exception is None:
@@ -394,7 +400,7 @@ class BufferedRecordReader(object):
           records.append(record)
           want -= len(record.record)
       except Exception as e:  # pylint: disable=broad-except
-        tf.logging.debug('Read failed: %s', e)
+        logging.debug('Read failed: %s', e)
         read_exception = sys.exc_info()
     with self._lock:
       self._read_exception = read_exception
@@ -531,7 +537,7 @@ class Progress(object):
 
   def __init__(self, clock=time.time,
                sleep=time.sleep,
-               log_callback=tf.logging.info,
+               log_callback=logging.info,
                bar_callback=BAR_LOGGER.info,
                rate_counter_factory=RateCounter):
     """Creates new instance.

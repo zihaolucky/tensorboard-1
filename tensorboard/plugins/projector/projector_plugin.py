@@ -28,10 +28,11 @@ from werkzeug import wrappers
 from tensorflow.python.platform import gfile
 from tensorflow.python.platform import tf_logging as logging
 from tensorflow.python import pywrap_tensorflow
-from tensorflow.python.platform import errors
+from tensorflow.python.framework import errors
 from tensorflow.core.framework import graph_pb2
 from tensorflow.python.client import session
-from tensorflow.python.ops import image_ops
+#from tensorflow.python.ops import image_ops
+import tensorflow as tf
 from tensorflow.python import training as train
 
 from google.protobuf import json_format
@@ -633,7 +634,7 @@ def _make_sprite_image(thumbnails, thumbnail_dim):
 
   with graph_pb2.Graph().as_default():
     s = session.Session()
-    resized_images = image_ops.resize_images(thumbnails, thumbnail_dim).eval(
+    resized_images = tf.image.resize_images(thumbnails, thumbnail_dim).eval(
         session=s)
     images_per_row = int(math.ceil(math.sqrt(len(thumbnails))))
     thumb_height = thumbnail_dim[0]
@@ -651,4 +652,4 @@ def _make_sprite_image(thumbnails, thumbnail_dim):
       top_end = top_start + thumb_height
       master[top_start:top_end, left_start:left_end, :] = image
 
-    return image_ops.encode_png(master).eval(session=s)
+    return tf.image.encode_png(master).eval(session=s)

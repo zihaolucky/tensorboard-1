@@ -44,7 +44,7 @@ from tensorboard.plugins.distribution import distributions_plugin
 from tensorboard.plugins.histogram import histograms_plugin
 from tensorboard.plugins.image import images_plugin
 #from tensorboard.plugins.profile import profile_plugin
-#from tensorboard.plugins.projector import projector_plugin
+from tensorboard.plugins.projector import projector_plugin
 from tensorboard.plugins.scalar import scalars_plugin
 from tensorboard.plugins.text import text_plugin
 

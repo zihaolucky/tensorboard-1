@@ -34,7 +34,7 @@ py_binary(
         "//tensorboard/plugins/image:images_plugin",
         #TODO(zihaolucky). re-open after we figure out how to use.
         #"//tensorboard/plugins/profile:profile_plugin",
-        #"//tensorboard/plugins/projector:projector_plugin",
+        "//tensorboard/plugins/projector:projector_plugin",
         "//tensorboard/plugins/scalar:scalars_plugin",
         "//tensorboard/plugins/text:text_plugin",
         "@org_pocoo_werkzeug",

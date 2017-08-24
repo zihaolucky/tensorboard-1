@@ -19,9 +19,9 @@ def tb_proto_library(name, srcs = [], visibility = []):
     name = name + "_py_pb2",
     srcs = srcs,
     srcs_version = "PY2AND3",
-    deps = ["@protobuf//:protobuf_python"],
-    protoc = "@protobuf//:protoc",
+    deps = ["@tb_protobuf//:protobuf_python"],
+    protoc = "@tb_protobuf//:protoc",
     visibility = visibility,
-    default_runtime = "@protobuf//:protobuf_python",
+    default_runtime = "@tb_protobuf//:protobuf_python",
     testonly = 0,
   )

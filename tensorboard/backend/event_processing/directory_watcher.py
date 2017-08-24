@@ -21,8 +21,8 @@ from __future__ import print_function
 import bisect
 
 from tensorflow.python.platform import gfile
-from tensorflow.python.platform import errors
 from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python.framework import errors
 
 from tensorboard.backend.event_processing import io_wrapper
 

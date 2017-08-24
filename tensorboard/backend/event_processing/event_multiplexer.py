@@ -23,8 +23,7 @@ import threading
 
 import six
 from tensorflow.python.platform import gfile
-from tensorflow.python.summary import event_accumulator
-from tensorflow.python.platform import logging as logging
+from tensorflow.python.platform import tf_logging as logging
 
 from tensorboard.backend.event_processing import directory_watcher
 from tensorboard.backend.event_processing import event_accumulator

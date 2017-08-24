@@ -20,7 +20,7 @@ from __future__ import print_function
 import os.path
 
 from tensorflow.python.platform import gfile
-from tensorflow.python.platform import errors
+from tensorflow.python.framework import errors
 
 _PLUGINS_DIR = "plugins"
 

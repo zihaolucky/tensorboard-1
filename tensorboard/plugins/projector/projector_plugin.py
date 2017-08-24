@@ -23,8 +23,16 @@ import imghdr
 import math
 import os
 import numpy as np
-import tensorflow as tf
 from werkzeug import wrappers
+
+from tensorflow.python.platform import gfile
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python import pywrap_tensorflow
+from tensorflow.python.platform import errors
+from tensorflow.core.framework import graph_pb2
+from tensorflow.python.client import session
+from tensorflow.python.ops import image_ops
+from tensorflow.python import training as train
 
 from google.protobuf import json_format
 from google.protobuf import text_format
@@ -139,7 +147,7 @@ class EmbeddingMetadata(object):
 
 
 def _read_tensor_tsv_file(fpath):
-  with tf.gfile.GFile(fpath, 'r') as f:
+  with gfile.GFile(fpath, 'r') as f:
     tensor = []
     for line in f:
       if line:
@@ -161,8 +169,8 @@ def _latest_checkpoints_changed(configs, run_path_pairs):
     if run_name not in configs:
       config = ProjectorConfig()
       config_fpath = os.path.join(assets_dir, PROJECTOR_FILENAME)
-      if tf.gfile.Exists(config_fpath):
-        with tf.gfile.GFile(config_fpath, 'r') as f:
+      if gfile.Exists(config_fpath):
+        with gfile.GFile(config_fpath, 'r') as f:
           file_content = f.read()
         text_format.Merge(file_content, config)
     else:
@@ -330,8 +338,8 @@ class ProjectorPlugin(base_plugin.TBPlugin):
     for run_name, assets_dir in run_path_pairs:
       config = ProjectorConfig()
       config_fpath = os.path.join(assets_dir, PROJECTOR_FILENAME)
-      if tf.gfile.Exists(config_fpath):
-        with tf.gfile.GFile(config_fpath, 'r') as f:
+      if gfile.Exists(config_fpath):
+        with gfile.GFile(config_fpath, 'r') as f:
           file_content = f.read()
         text_format.Merge(file_content, config)
       has_tensor_files = False
@@ -354,8 +362,8 @@ class ProjectorPlugin(base_plugin.TBPlugin):
       # Sanity check for the checkpoint file.
       if (config.model_checkpoint_path and
           not tf.train.checkpoint_exists(config.model_checkpoint_path)):
-        tf.logging.warning('Checkpoint file "%s" not found',
-                           config.model_checkpoint_path)
+        logging.warning('Checkpoint file "%s" not found',
+                        config.model_checkpoint_path)
         continue
       configs[run_name] = config
       config_fpaths[run_name] = config_fpath
@@ -369,10 +377,10 @@ class ProjectorPlugin(base_plugin.TBPlugin):
     reader = None
     if config.model_checkpoint_path:
       try:
-        reader = tf.pywrap_tensorflow.NewCheckpointReader(
+        reader = pywrap_tensorflow.NewCheckpointReader(
             config.model_checkpoint_path)
       except Exception:  # pylint: disable=broad-except
-        tf.logging.warning('Failed reading "%s"', config.model_checkpoint_path)
+        logging.warning('Failed reading "%s"', config.model_checkpoint_path)
     self.readers[run] = reader
     return reader
 
@@ -457,12 +465,12 @@ class ProjectorPlugin(base_plugin.TBPlugin):
           'No metadata file found for tensor "%s" in the config file "%s"' %
           (name, self.config_fpaths[run]), 'text/plain', 400)
     fpath = _rel_to_abs_asset_path(fpath, self.config_fpaths[run])
-    if not tf.gfile.Exists(fpath) or tf.gfile.IsDirectory(fpath):
+    if not gfile.Exists(fpath) or gfile.IsDirectory(fpath):
       return Respond(request, '"%s" not found, or is not a file' % fpath,
                      'text/plain', 400)
 
     num_header_rows = 0
-    with tf.gfile.GFile(fpath, 'r') as f:
+    with gfile.GFile(fpath, 'r') as f:
       lines = []
       # Stream reading the file with early break in case the file doesn't fit in
       # memory.
@@ -504,7 +512,7 @@ class ProjectorPlugin(base_plugin.TBPlugin):
       if embedding and embedding.tensor_path:
         fpath = _rel_to_abs_asset_path(embedding.tensor_path,
                                        self.config_fpaths[run])
-        if not tf.gfile.Exists(fpath):
+        if not gfile.Exists(fpath):
           return Respond(request,
                          'Tensor file "%s" does not exist' % fpath,
                          'text/plain', 400)
@@ -518,7 +526,7 @@ class ProjectorPlugin(base_plugin.TBPlugin):
                          400)
         try:
           tensor = reader.get_tensor(name)
-        except tf.errors.InvalidArgumentError as e:
+        except errors.InvalidArgumentError as e:
           return Respond(request, str(e), 'text/plain', 400)
 
       self.tensor_cache.set(name, tensor)
@@ -553,12 +561,12 @@ class ProjectorPlugin(base_plugin.TBPlugin):
           'No bookmarks file found for tensor "%s" in the config file "%s"' %
           (name, self.config_fpaths[run]), 'text/plain', 400)
     fpath = _rel_to_abs_asset_path(fpath, self.config_fpaths[run])
-    if not tf.gfile.Exists(fpath) or tf.gfile.IsDirectory(fpath):
+    if not gfile.Exists(fpath) or gfile.IsDirectory(fpath):
       return Respond(request, '"%s" not found, or is not a file' % fpath,
                      'text/plain', 400)
 
     bookmarks_json = None
-    with tf.gfile.GFile(fpath, 'rb') as f:
+    with gfile.GFile(fpath, 'rb') as f:
       bookmarks_json = f.read()
     return Respond(request, bookmarks_json, 'application/json')
 
@@ -588,10 +596,10 @@ class ProjectorPlugin(base_plugin.TBPlugin):
 
     fpath = os.path.expanduser(embedding_info.sprite.image_path)
     fpath = _rel_to_abs_asset_path(fpath, self.config_fpaths[run])
-    if not tf.gfile.Exists(fpath) or tf.gfile.IsDirectory(fpath):
+    if not gfile.Exists(fpath) or gfile.IsDirectory(fpath):
       return Respond(request, '"%s" does not exist or is directory' % fpath,
                      'text/plain', 400)
-    f = tf.gfile.GFile(fpath, 'rb')
+    f = gfile.GFile(fpath, 'rb')
     encoded_image_string = f.read()
     f.close()
     image_type = imghdr.what(None, encoded_image_string)
@@ -601,12 +609,12 @@ class ProjectorPlugin(base_plugin.TBPlugin):
 
 def _find_latest_checkpoint(dir_path):
   try:
-    ckpt_path = tf.train.latest_checkpoint(dir_path)
+    ckpt_path = train.latest_checkpoint(dir_path)
     if not ckpt_path:
       # Check the parent directory.
-      ckpt_path = tf.train.latest_checkpoint(os.path.join(dir_path, os.pardir))
+      ckpt_path = train.latest_checkpoint(os.path.join(dir_path, os.pardir))
     return ckpt_path
-  except tf.errors.NotFoundError:
+  except errors.NotFoundError:
     return None
 
 
@@ -623,9 +631,9 @@ def _make_sprite_image(thumbnails, thumbnail_dim):
       raise ValueError('Each element of "thumbnails" must be a 3D `ndarray`')
     thumbnails = np.array(thumbnails)
 
-  with tf.Graph().as_default():
-    s = tf.Session()
-    resized_images = tf.image.resize_images(thumbnails, thumbnail_dim).eval(
+  with graph_pb2.Graph().as_default():
+    s = session.Session()
+    resized_images = image_ops.resize_images(thumbnails, thumbnail_dim).eval(
         session=s)
     images_per_row = int(math.ceil(math.sqrt(len(thumbnails))))
     thumb_height = thumbnail_dim[0]
@@ -643,4 +651,4 @@ def _make_sprite_image(thumbnails, thumbnail_dim):
       top_end = top_start + thumb_height
       master[top_start:top_end, left_start:left_end, :] = image
 
-    return tf.image.encode_png(master).eval(session=s)
+    return image_ops.encode_png(master).eval(session=s)

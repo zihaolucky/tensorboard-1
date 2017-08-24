@@ -26,7 +26,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
-import tensorflow as tf
+from tensorflow.python.platform import gfile
 
 from google.protobuf import text_format as _text_format
 from tensorboard.plugins.projector import projector_plugin as _projector_plugin
@@ -58,5 +58,5 @@ def visualize_embeddings(summary_writer, config):
   # Saving the config file in the logdir.
   config_pbtxt = _text_format.MessageToString(config)
   path = os.path.join(logdir, _projector_plugin.PROJECTOR_FILENAME)
-  with tf.gfile.Open(path, 'w') as f:
+  with gfile.Open(path, 'w') as f:
     f.write(config_pbtxt)

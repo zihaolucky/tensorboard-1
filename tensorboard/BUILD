@@ -29,7 +29,7 @@ py_binary(
         "//tensorboard/plugins/audio:audio_plugin",
         "//tensorboard/plugins/core:core_plugin",
         "//tensorboard/plugins/distribution:distributions_plugin",
-        #"//tensorboard/plugins/graph:graphs_plugin",
+        "//tensorboard/plugins/graph:graphs_plugin",
         "//tensorboard/plugins/histogram:histograms_plugin",
         "//tensorboard/plugins/image:images_plugin",
         #TODO(zihaolucky). re-open after we figure out how to use.

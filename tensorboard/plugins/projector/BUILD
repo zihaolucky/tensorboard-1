@@ -20,6 +20,7 @@ py_library(
         "@org_tensorflow//tensorflow/python:platform",
         "@org_tensorflow//tensorflow/python:summary",
         "@org_tensorflow//tensorflow/python:ops",
+        "@org_tensorflow//tensorflow/python:training",
         "//tensorboard/backend:http_util",
         "//tensorboard/plugins:base_plugin",
         "@org_pocoo_werkzeug",
@@ -38,6 +39,7 @@ py_library(
         "@org_tensorflow//tensorflow/python:platform",
         "@org_tensorflow//tensorflow/python:summary",
         "@org_tensorflow//tensorflow/python:ops",
+        "@org_tensorflow//tensorflow/python:training",
     ],
 )
 
@@ -53,6 +55,7 @@ py_test(
         "@org_tensorflow//tensorflow/python:platform",
         "@org_tensorflow//tensorflow/python:summary",
         "@org_tensorflow//tensorflow/python:ops",
+        "@org_tensorflow//tensorflow/python:training",
     ],
 )
 
@@ -69,6 +72,7 @@ py_test(
         "@org_tensorflow//tensorflow/python:platform",
         "@org_tensorflow//tensorflow/python:summary",
         "@org_tensorflow//tensorflow/python:ops",
+        "@org_tensorflow//tensorflow/python:training",
         "//tensorboard/backend:application",
         "//tensorboard/backend/event_processing:event_multiplexer",
         "//tensorboard/plugins:base_plugin",

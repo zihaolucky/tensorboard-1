@@ -39,12 +39,12 @@ from tensorboard.backend.event_processing import event_file_inspector as efi
 from tensorboard.plugins.audio import audio_plugin
 from tensorboard.plugins.core import core_plugin
 from tensorboard.plugins.distribution import distributions_plugin
-#TODO(zihaolucky). re-open after we figure how to use it.
-#from tensorboard.plugins.graph import graphs_plugin
+from tensorboard.plugins.graph import graphs_plugin
 from tensorboard.plugins.histogram import histograms_plugin
 from tensorboard.plugins.image import images_plugin
+#TODO(zihaolucky). re-open after we figure how to use it.
 #from tensorboard.plugins.profile import profile_plugin
-#from tensorboard.plugins.projector import projector_plugin
+from tensorboard.plugins.projector import projector_plugin
 from tensorboard.plugins.scalar import scalars_plugin
 from tensorboard.plugins.text import text_plugin
 
@@ -238,10 +238,10 @@ def main(unused_argv=None):
         scalars_plugin.ScalarsPlugin,
         images_plugin.ImagesPlugin,
         audio_plugin.AudioPlugin,
-        #graphs_plugin.GraphsPlugin,
+        graphs_plugin.GraphsPlugin,
         distributions_plugin.DistributionsPlugin,
         histograms_plugin.HistogramsPlugin,
-        #projector_plugin.ProjectorPlugin,
+        projector_plugin.ProjectorPlugin,
         text_plugin.TextPlugin,
         #profile_plugin.ProfilePlugin,
     ]

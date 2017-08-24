@@ -21,14 +21,16 @@ from __future__ import print_function
 import os
 import shutil
 
-import tensorflow as tf
+from tensorflow.python.platform import gfile
+from tensorflow.python.platform import test
+from tensorflow.python.summary import summary as summary_lib
 
 from google.protobuf import text_format
 
 from tensorboard.plugins import projector
 
 
-class ProjectorApiTest(tf.test.TestCase):
+class ProjectorApiTest(test.TestCase):
 
   def testVisualizeEmbeddings(self):
     # Create a dummy configuration.
@@ -41,15 +43,15 @@ class ProjectorApiTest(tf.test.TestCase):
     # Call the API method to save the configuration to a temporary dir.
     temp_dir = self.get_temp_dir()
     self.addCleanup(shutil.rmtree, temp_dir)
-    writer = tf.summary.FileWriter(temp_dir)
+    writer = summary_lib.summary.FileWriter(temp_dir)
     projector.visualize_embeddings(writer, config)
 
     # Read the configurations from disk and make sure it matches the original.
-    with tf.gfile.GFile(os.path.join(temp_dir, 'projector_config.pbtxt')) as f:
+    with gfile.GFile(os.path.join(temp_dir, 'projector_config.pbtxt')) as f:
       config2 = projector.ProjectorConfig()
       text_format.Parse(f.read(), config2)
       self.assertEqual(config, config2)
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

@@ -238,10 +238,10 @@ def main(unused_argv=None):
         scalars_plugin.ScalarsPlugin,
         images_plugin.ImagesPlugin,
         audio_plugin.AudioPlugin,
-        #graphs_plugin.GraphsPlugin,
+        graphs_plugin.GraphsPlugin,
         distributions_plugin.DistributionsPlugin,
         histograms_plugin.HistogramsPlugin,
-        #projector_plugin.ProjectorPlugin,
+        projector_plugin.ProjectorPlugin,
         text_plugin.TextPlugin,
         #profile_plugin.ProfilePlugin,
     ]

@@ -20,7 +20,10 @@ import functools
 import locale
 import os
 
-import tensorflow as tf
+from tensorflow.python.platform import test
+from tensorflow.python.util import compat
+from tensorflow.python.platform import errors
+from tensorflow.python import pywrap_tensorflow
 
 from tensorboard import loader
 from tensorboard import test_util
@@ -41,7 +44,7 @@ class LoaderTestCase(test_util.TestCase):
     """
     path = os.path.join(self.get_temp_dir(), name)
     with open(path, 'wb') as writer:
-      writer.write(tf.compat.as_bytes(data))
+      writer.write(compat.as_bytes(data))
     return path
 
   def _save_records(self, name, records):
@@ -109,7 +112,7 @@ class RecordReaderTest(LoaderTestCase):
   def testCorruptRecord_raisesDataLossError(self):
     path = self._save_string('foobar.records', 'abcd' * 4)
     with self.RecordReader(path) as reader:
-      with self.assertRaises(tf.errors.DataLossError):
+      with self.assertRaises(errors.DataLossError):
         self.assertEqual(b'foo', reader.get_next_record())
 
   def testFileShrunk_raisesIoError(self):
@@ -249,22 +252,22 @@ class ProgressTest(LoaderTestCase):
 @util.closeable
 class RecordWriter(object):
   def __init__(self, path):
-    self.path = tf.compat.as_bytes(path)
+    self.path = compat.as_bytes(path)
     self._writer = self._make_writer()
 
   def write(self, record):
-    if not self._writer.WriteRecord(tf.compat.as_bytes(record)):
+    if not self._writer.WriteRecord(compat.as_bytes(record)):
       raise IOError('Failed to write record to ' + self.path)
 
   def close(self):
-    with tf.errors.raise_exception_on_not_ok_status() as status:
+    with errors.raise_exception_on_not_ok_status() as status:
       self._writer.Close(status)
 
   def _make_writer(self):
-    with tf.errors.raise_exception_on_not_ok_status() as status:
-      return tf.pywrap_tensorflow.PyRecordWriter_New(
-          self.path, tf.compat.as_bytes(''), status)
+    with errors.raise_exception_on_not_ok_status() as status:
+      return pywrap_tensorflow.PyRecordWriter_New(
+          self.path, compat.as_bytes(''), status)
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

@@ -30,7 +30,10 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":distributions_plugin",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
         "//tensorboard/backend:application",
         "//tensorboard/backend/event_processing:event_accumulator",
         "//tensorboard/backend/event_processing:event_multiplexer",
@@ -55,6 +58,9 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":compressor",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
     ],
 )

@@ -20,18 +20,18 @@ import logging
 import time
 
 import six
-import tensorflow as tf
+from tensorflow.python.platform import test
 
 from tensorboard import test_util
 from tensorboard import util
 
 
-class LogFormatterTest(tf.test.TestCase):
+class LogFormatterTest(test.TestCase):
 
   def __init__(self, *args, **kwargs):
     super(LogFormatterTest, self).__init__(*args, **kwargs)
     self.clock = test_util.FakeClock()
-    self.stubs = tf.test.StubOutForTesting()
+    self.stubs = test.StubOutForTesting()
     self.formatter = util.LogFormatter()
     self.formatter.converter = time.gmtime
 
@@ -66,7 +66,7 @@ class LogFormatterTest(tf.test.TestCase):
         self.formatter.format(record))
 
 
-class LogHandlerTest(tf.test.TestCase):
+class LogHandlerTest(test.TestCase):
 
   def testLogToNonTerminal_doesNothingFancy(self):
     stream = six.StringIO()
@@ -184,4 +184,4 @@ def TerminalStringIO():
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

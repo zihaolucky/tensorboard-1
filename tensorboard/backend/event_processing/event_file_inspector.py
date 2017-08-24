@@ -116,13 +116,16 @@ import collections
 import itertools
 import os
 
-import tensorflow as tf
+from tensorflow.python.platform import flags
+from tensorflow.core.util.event_pb2 import SessionLog
+from tensorflow.python.platform import app
+from tensorflow.python.platform import gfile
 
 from tensorboard.backend.event_processing import event_accumulator
 from tensorboard.backend.event_processing import event_file_loader
 from tensorboard.backend.event_processing import event_multiplexer
 
-FLAGS = tf.flags.FLAGS
+FLAGS = flags.FLAGS
 
 
 # Map of field names within summary.proto to the user-facing names that this
@@ -193,11 +196,11 @@ def get_field_to_observations_map(generator, query_for_tag=''):
       increment('graph', event)
     if event.HasField('session_log') and (not query_for_tag):
       status = event.session_log.status
-      if status == tf.SessionLog.START:
+      if status == SessionLog.START:
         increment('sessionlog:start', event)
-      elif status == tf.SessionLog.STOP:
+      elif status == SessionLog.STOP:
         increment('sessionlog:stop', event)
-      elif status == tf.SessionLog.CHECKPOINT:
+      elif status == SessionLog.CHECKPOINT:
         increment('sessionlog:checkpoint', event)
     elif event.HasField('summary'):
       for value in event.summary.value:
@@ -327,7 +330,7 @@ def generators_from_logdir(logdir):
   generators = [
       itertools.chain(*[
           generator_from_event_file(os.path.join(subdir, f))
-          for f in tf.gfile.ListDirectory(subdir)
+          for f in gfile.ListDirectory(subdir)
           if event_accumulator.IsTensorFlowEventsFile(os.path.join(subdir, f))
       ]) for subdir in subdirs
   ]
@@ -361,7 +364,7 @@ def get_inspection_units(logdir='', event_file='', tag=''):
     for subdir in subdirs:
       generator = itertools.chain(*[
           generator_from_event_file(os.path.join(subdir, f))
-          for f in tf.gfile.ListDirectory(subdir)
+          for f in gfile.ListDirectory(subdir)
           if event_accumulator.IsTensorFlowEventsFile(os.path.join(subdir, f))
       ])
       inspection_units.append(InspectionUnit(
@@ -425,4 +428,4 @@ def inspect(logdir='', event_file='', tag=''):
 
 
 if __name__ == '__main__':
-  tf.app.run()
+  app.run()

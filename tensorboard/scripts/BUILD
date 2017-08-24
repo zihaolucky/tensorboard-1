@@ -13,7 +13,11 @@ py_binary(
     srcs_version = "PY2AND3",
     deps = [
         "//tensorboard:expect_numpy_installed",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
+        "@org_tensorflow//tensorflow/python:client",
         "@org_pythonhosted_six",
     ],
 )

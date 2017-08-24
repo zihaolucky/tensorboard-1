@@ -28,7 +28,7 @@ import os
 import re
 import sys
 
-import tensorflow as tf
+from tensorflow.python.util import compat
 
 
 def setup_logging(streams=(sys.stderr,)):
@@ -44,7 +44,6 @@ def setup_logging(streams=(sys.stderr,)):
   # NOTE: Adding a level parameter to this method would be a bad idea
   #       because Python and ABSL disagree on the level numbers.
   locale.setlocale(locale.LC_ALL, '')
-  tf.logging.set_verbosity(tf.logging.WARN)
   # TODO(jart): Make the default TensorFlow logger behavior great again.
   logging.currentframe = _hack_the_main_frame
   handlers = [LogHandler(s) for s in streams]
@@ -274,7 +273,7 @@ class LogHandler(logging.StreamHandler):
     if self._is_tty and self._ephemeral:
       # We're counting columns in the terminal, not bytes. So we don't
       # want to take UTF-8 or color codes into consideration.
-      text = Ansi.ESCAPE_PATTERN.sub('', tf.compat.as_text(self._ephemeral))
+      text = Ansi.ESCAPE_PATTERN.sub('', compat.as_text(self._ephemeral))
       self._stream.write('\r' + ' ' * len(text) + '\r')
 
 

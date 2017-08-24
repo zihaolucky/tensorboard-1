@@ -19,7 +19,8 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
-import tensorflow as tf
+from tensorflow.python.framework import tensor_util
+from tensorflow.core.framework import summary_pb2
 
 from tensorboard.plugins.histogram import metadata as histogram_metadata
 
@@ -58,10 +59,10 @@ def _migrate_histogram_value(value):
   bucket_counts = histogram_value.bucket
   buckets = np.array([bucket_lefts, bucket_rights, bucket_counts]).transpose()
 
-  tensor_proto = tf.make_tensor_proto(buckets)
+  tensor_proto = tensor_util.make_tensor_proto(buckets)
   summary_metadata = histogram_metadata.create_summary_metadata(
       display_name=value.metadata.display_name or value.tag,
       description=value.metadata.summary_description)
-  return tf.Summary.Value(tag=value.tag,
-                          metadata=summary_metadata,
-                          tensor=tensor_proto)
+  return summary_pb2.Summary.Value(tag=value.tag,
+                                   metadata=summary_metadata,
+                                   tensor=tensor_proto)

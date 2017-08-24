@@ -18,8 +18,13 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
-
+from tensorflow.core.util import event_pb2
+from tensorflow.python import pywrap_tensorflow
+from tensorflow.python.framework import errors
+from tensorflow.python.platform import app
+from tensorflow.python.platform import resource_loader
+from tensorflow.python.platform import tf_logging as logging
+from tensorflow.python.util import compat
 
 class EventFileLoader(object):
   """An EventLoader is an iterator that yields Event protos."""
@@ -27,11 +32,11 @@ class EventFileLoader(object):
   def __init__(self, file_path):
     if file_path is None:
       raise ValueError('A file path is required')
-    file_path = tf.resource_loader.readahead_file_path(file_path)
-    tf.logging.debug('Opening a record reader pointing at %s', file_path)
-    with tf.errors.raise_exception_on_not_ok_status() as status:
-      self._reader = tf.pywrap_tensorflow.PyRecordReader_New(
-          tf.compat.as_bytes(file_path), 0, tf.compat.as_bytes(''), status)
+    file_path = resource_loader.readahead_file_path(file_path)
+    logging.debug('Opening a record reader pointing at %s', file_path)
+    with errors.raise_exception_on_not_ok_status() as status:
+      self._reader = pywrap_tensorflow.PyRecordReader_New(
+          compat.as_bytes(file_path), 0, compat.as_bytes(''), status)
     # Store it for logging purposes.
     self._file_path = file_path
     if not self._reader:
@@ -48,17 +53,17 @@ class EventFileLoader(object):
     """
     while True:
       try:
-        with tf.errors.raise_exception_on_not_ok_status() as status:
+        with errors.raise_exception_on_not_ok_status() as status:
           self._reader.GetNext(status)
-      except (tf.errors.DataLossError, tf.errors.OutOfRangeError):
+      except (errors.DataLossError, errors.OutOfRangeError):
         # We ignore partial read exceptions, because a record may be truncated.
         # PyRecordReader holds the offset prior to the failed read, so retrying
         # will succeed.
         break
-      event = tf.Event()
+      event = event_pb2.Event()
       event.ParseFromString(self._reader.record())
       yield event
-    tf.logging.debug('No more events in %s', self._file_path)
+    logging.debug('No more events in %s', self._file_path)
 
 
 def main(argv):
@@ -71,4 +76,4 @@ def main(argv):
 
 
 if __name__ == '__main__':
-  tf.app.run()
+  app.run()

@@ -23,13 +23,13 @@ from __future__ import unicode_literals
 import gzip
 
 import six
-import tensorflow as tf
+from tensorflow.python.platform import test
 from werkzeug import test as wtest
 from werkzeug import wrappers
 from tensorboard.backend import http_util
 
 
-class RespondTest(tf.test.TestCase):
+class RespondTest(test.TestCase):
 
   def testHelloWorld(self):
     q = wrappers.Request(wtest.EnvironBuilder().get_environ())
@@ -152,4 +152,4 @@ def _gunzip(bs):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

@@ -26,8 +26,11 @@ import os
 import socket
 import sys
 
-import tensorflow as tf
 from werkzeug import serving
+
+from tensorflow.python.platform import app
+from tensorflow.python.platform import flags
+from tensorflow.python.platform import tf_logging as logging
 
 from tensorboard import util
 from tensorboard import version
@@ -36,17 +39,18 @@ from tensorboard.backend.event_processing import event_file_inspector as efi
 from tensorboard.plugins.audio import audio_plugin
 from tensorboard.plugins.core import core_plugin
 from tensorboard.plugins.distribution import distributions_plugin
-from tensorboard.plugins.graph import graphs_plugin
+#TODO(zihaolucky). re-open after we figure how to use it.
+#from tensorboard.plugins.graph import graphs_plugin
 from tensorboard.plugins.histogram import histograms_plugin
 from tensorboard.plugins.image import images_plugin
-from tensorboard.plugins.profile import profile_plugin
-from tensorboard.plugins.projector import projector_plugin
+#from tensorboard.plugins.profile import profile_plugin
+#from tensorboard.plugins.projector import projector_plugin
 from tensorboard.plugins.scalar import scalars_plugin
 from tensorboard.plugins.text import text_plugin
 
 # TensorBoard flags
 
-tf.flags.DEFINE_string('logdir', '', """logdir specifies the directory where
+flags.DEFINE_string('logdir', '', """logdir specifies the directory where
 TensorBoard will look to find TensorFlow event files that it can display.
 TensorBoard will recursively walk the directory structure rooted at logdir,
 looking for .*tfevents.* files.
@@ -58,24 +62,24 @@ directories by putting a colon between the name and the path, as in
 tensorboard --logdir=name1:/path/to/logs/1,name2:/path/to/logs/2
 """)
 
-tf.flags.DEFINE_string(
+flags.DEFINE_string(
     'host', '', 'What host to listen to. Defaults to '
     'serving on all interfaces, set to 127.0.0.1 (localhost) to'
     'disable remote access (also quiets security warnings).')
 
-tf.flags.DEFINE_integer('port', 6006, 'What port to serve TensorBoard on.')
+flags.DEFINE_integer('port', 6006, 'What port to serve TensorBoard on.')
 
-tf.flags.DEFINE_boolean(
+flags.DEFINE_boolean(
     'purge_orphaned_data', True, 'Whether to purge data that '
     'may have been orphaned due to TensorBoard restarts. '
     'Disabling purge_orphaned_data can be used to debug data '
     'disappearance.')
 
-tf.flags.DEFINE_integer('reload_interval', 5,
+flags.DEFINE_integer('reload_interval', 5,
                         'How often the backend should load '
                         'more data.')
 
-tf.flags.DEFINE_string('db', "", """\
+flags.DEFINE_string('db', "", """\
 [Experimental] Sets SQL database URI.
 
 This mode causes TensorBoard to persist experiments to a SQL database. The
@@ -90,7 +94,7 @@ Warning: This feature is a work in progress and only has limited support.
 
 # Inspect Mode flags
 
-tf.flags.DEFINE_boolean('inspect', False, """Use this flag to print out a digest
+flags.DEFINE_boolean('inspect', False, """Use this flag to print out a digest
 of your event files to the command line, when no data is shown on TensorBoard or
 the data shown looks weird.
 
@@ -103,15 +107,15 @@ tensorboard --inspect --logdir=mylogdir --tag=loss
 See tensorflow/python/summary/event_file_inspector.py for more info and
 detailed usage.
 """)
-tf.flags.DEFINE_string(
+flags.DEFINE_string(
     'tag', '',
     'The particular tag to query for. Only used if --inspect is present')
-tf.flags.DEFINE_string(
+flags.DEFINE_string(
     'event_file', '',
     'The particular event file to query for. Only used if --inspect is present '
     'and --logdir is not specified.')
 
-FLAGS = tf.flags.FLAGS
+FLAGS = flags.FLAGS
 
 
 def create_tb_app(plugins, assets_zip_provider=None):
@@ -194,7 +198,7 @@ def make_simple_server(tb_app, host=None, port=None):
       msg = (
           'TensorBoard attempted to bind to port %d, but it was already in use'
           % port)
-    tf.logging.error(msg)
+    logging.error(msg)
     print(msg)
     raise socket_error
 
@@ -224,7 +228,7 @@ def run_simple_server(tb_app):
 def main(unused_argv=None):
   util.setup_logging()
   if FLAGS.inspect:
-    tf.logging.info('Not bringing up TensorBoard, but inspecting event files.')
+    logging.info('Not bringing up TensorBoard, but inspecting event files.')
     event_file = os.path.expanduser(FLAGS.event_file)
     efi.inspect(FLAGS.logdir, event_file, FLAGS.tag)
     return 0
@@ -234,16 +238,16 @@ def main(unused_argv=None):
         scalars_plugin.ScalarsPlugin,
         images_plugin.ImagesPlugin,
         audio_plugin.AudioPlugin,
-        graphs_plugin.GraphsPlugin,
+        #graphs_plugin.GraphsPlugin,
         distributions_plugin.DistributionsPlugin,
         histograms_plugin.HistogramsPlugin,
-        projector_plugin.ProjectorPlugin,
+        #projector_plugin.ProjectorPlugin,
         text_plugin.TextPlugin,
-        profile_plugin.ProfilePlugin,
+        #profile_plugin.ProfilePlugin,
     ]
     tb = create_tb_app(plugins)
     run_simple_server(tb)
 
 
 if __name__ == '__main__':
-  tf.app.run()
+  app.run()

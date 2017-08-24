@@ -16,7 +16,10 @@ py_library(
     deps = [
         ":protos_all_py_pb2",
         "//tensorboard:expect_numpy_installed",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
         "//tensorboard/backend:http_util",
         "//tensorboard/plugins:base_plugin",
         "@org_pocoo_werkzeug",
@@ -31,7 +34,10 @@ py_library(
     deps = [
         ":projector_plugin",
         ":protos_all_py_pb2",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
     ],
 )
 
@@ -43,7 +49,10 @@ py_test(
     srcs_version = "PY2AND3",
     deps = [
         ":projector",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
     ],
 )
 
@@ -56,7 +65,10 @@ py_test(
     deps = [
         ":projector_plugin",
         "//tensorboard:expect_numpy_installed",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
         "//tensorboard/backend:application",
         "//tensorboard/backend/event_processing:event_multiplexer",
         "//tensorboard/plugins:base_plugin",

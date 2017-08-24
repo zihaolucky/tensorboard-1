@@ -13,7 +13,10 @@ py_library(
     srcs_version = "PY2AND3",
     deps = [
         ":protos_all_py_pb2",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
     ],
 )
 
@@ -26,7 +29,10 @@ py_test(
         ":protos_all_py_pb2",
         ":summary",
         "//tensorboard:expect_numpy_installed",
-        "//tensorboard:expect_tensorflow_installed",
+        #"//tensorboard:expect_tensorflow_installed",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:summary",
+        "@org_tensorflow//tensorflow/python:ops",
         "//tensorboard/backend:application",
         "//tensorboard/backend/event_processing:event_multiplexer",
         "//tensorboard/plugins:base_plugin",

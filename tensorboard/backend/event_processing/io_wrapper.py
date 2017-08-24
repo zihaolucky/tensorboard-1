@@ -19,8 +19,7 @@ from __future__ import print_function
 
 import os
 
-import tensorflow as tf
-
+from tensorflow.python.platform import gfile
 
 def IsGCSPath(path):
   return path.startswith("gs://")
@@ -29,7 +28,7 @@ def IsGCSPath(path):
 def ListDirectoryAbsolute(directory):
   """Yields all files in the given directory. The paths are absolute."""
   return (os.path.join(directory, path)
-          for path in tf.gfile.ListDirectory(directory))
+          for path in gfile.ListDirectory(directory))
 
 
 def ListRecursively(top):
@@ -47,6 +46,6 @@ def ListRecursively(top):
   Yields:
     A list of (dir_path, file_paths) tuples.
   """
-  for dir_path, _, filenames in tf.gfile.Walk(top):
+  for dir_path, _, filenames in gfile.Walk(top):
     yield (dir_path, (os.path.join(dir_path, filename)
                       for filename in filenames))

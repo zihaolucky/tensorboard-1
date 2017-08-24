@@ -21,7 +21,7 @@ import itertools
 import os
 import sqlite3
 
-import tensorflow as tf
+from tensorflow.python.platform import test
 
 from tensorboard import db
 from tensorboard import test_util
@@ -115,4 +115,4 @@ class RowIdTest(test_util.TestCase):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

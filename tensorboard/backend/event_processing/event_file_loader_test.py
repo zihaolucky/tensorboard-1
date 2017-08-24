@@ -22,13 +22,12 @@ from __future__ import print_function
 import os
 import tempfile
 
-import tensorflow as tf
-
+from tensorflow.python.platform import test
 
 from tensorboard.backend.event_processing import event_file_loader
 
 
-class EventFileLoaderTest(tf.test.TestCase):
+class EventFileLoaderTest(test.TestCase):
   # A record containing a simple event.
   RECORD = (b'\x18\x00\x00\x00\x00\x00\x00\x00\xa3\x7fK"\t\x00\x00\xc0%\xddu'
             b'\xd5A\x1a\rbrain.Event:1\xec\xf32\x8d')
@@ -90,4 +89,4 @@ class EventFileLoaderTest(tf.test.TestCase):
 
 
 if __name__ == '__main__':
-  tf.test.main()
+  test.main()

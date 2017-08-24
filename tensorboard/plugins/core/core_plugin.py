@@ -22,9 +22,10 @@ import functools
 import mimetypes
 import zipfile
 
-import tensorflow as tf
 from werkzeug import utils
 from werkzeug import wrappers
+
+from tensorflow.python.platform import tf_logging as logging
 
 from tensorboard.backend import http_util
 from tensorboard.plugins import base_plugin
@@ -115,7 +116,7 @@ class CorePlugin(base_plugin.TBPlugin):
       try:
         return self._multiplexer.FirstEventTimestamp(run_name)
       except ValueError:
-        tf.logging.warning('Unable to get first event timestamp for run %s',
+        logging.warning('Unable to get first event timestamp for run %s',
                            run_name)
         # Put runs without a timestamp at the end. Their internal
         # ordering would be nondeterministic, but Python's sorts are

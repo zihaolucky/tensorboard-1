@@ -1,5 +1,10 @@
 workspace(name = "org_tensorflow_tensorboard")
 
+local_repository(
+    name = "org_tensorflow",
+    path = "tensorflow",
+)
+
 http_archive(
     name = "io_bazel_rules_closure",
     sha256 = "e9e2538b1f7f27de73fa2914b7d2cb1ce2ac01d1abe8390cfe51fb2558ef8b27",

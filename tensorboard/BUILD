@@ -38,6 +38,12 @@ py_binary(
         "//tensorboard/plugins/scalar:scalars_plugin",
         "//tensorboard/plugins/text:text_plugin",
         "@org_pocoo_werkzeug",
+        "@org_tensorflow//tensorflow/python:framework",
+        "@org_tensorflow//tensorflow/python:util",
+        "@org_tensorflow//tensorflow/python:platform",
+        "@org_tensorflow//tensorflow/python:training",
+        "@org_tensorflow//tensorflow/python:ops",
+        "@org_tensorflow//tensorflow/python:summary",
     ],
 )
 

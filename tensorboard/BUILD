@@ -37,6 +37,7 @@ py_binary(
         "//tensorboard/plugins/projector:projector_plugin",
         "//tensorboard/plugins/scalar:scalars_plugin",
         "//tensorboard/plugins/text:text_plugin",
+        "@org_tensorflow//tensorflow:tensorflow_py",
         "@org_pocoo_werkzeug",
     ],
 )

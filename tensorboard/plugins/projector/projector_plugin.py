@@ -33,7 +33,7 @@ from tensorflow.core.framework import graph_pb2
 from tensorflow.python.client import session
 #from tensorflow.python.ops import image_ops
 import tensorflow as tf
-from tensorflow.python import training as train
+from tensorflow.python.training import training as train
 
 from google.protobuf import json_format
 from google.protobuf import text_format
@@ -166,6 +166,8 @@ def _assets_dir_to_logdir(assets_dir):
 
 def _latest_checkpoints_changed(configs, run_path_pairs):
   """Returns true if the latest checkpoint has changed in any of the runs."""
+  if configs is None:
+    return False
   for run_name, assets_dir in run_path_pairs:
     if run_name not in configs:
       config = ProjectorConfig()

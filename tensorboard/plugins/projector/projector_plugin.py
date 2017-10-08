@@ -32,6 +32,7 @@ from tensorflow.python.framework import errors
 from tensorflow.core.framework import graph_pb2
 from tensorflow.python.client import session
 #from tensorflow.python.ops import image_ops
+import tensorflow as tf
 from tensorflow.python.training import training as train
 
 from google.protobuf import json_format

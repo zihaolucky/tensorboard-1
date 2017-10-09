@@ -117,6 +117,11 @@ py_library(
     # We expect TensorFlow to already be installed on the system, e.g. via
     # `pip install tensorflow`
     visibility = ["//visibility:public"],
+    deps = [
+        "@org_tensorflow//tensorflow/python:framework",
+        "@org_tensorflow//tensorflow/python:util",
+        "@org_tensorflow//tensorflow:tensorflow_py"
+    ]
 )
 
 py_library(

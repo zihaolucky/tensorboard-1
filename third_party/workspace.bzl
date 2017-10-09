@@ -21,15 +21,17 @@ load("//third_party:polymer.bzl", "tensorboard_polymer_workspace")
 load("//third_party:python.bzl", "tensorboard_python_workspace")
 load("//third_party:js.bzl", "tensorboard_js_workspace")
 load("//third_party:typings.bzl", "tensorboard_typings_workspace")
+load('@org_tensorflow//tensorflow:workspace.bzl', 'tf_workspace')
 
 def tensorboard_workspace():
   tensorboard_polymer_workspace()
   tensorboard_python_workspace()
   tensorboard_typings_workspace()
   tensorboard_js_workspace()
+  tf_workspace(path_prefix = "", tf_repo_name = "org_tensorflow")
 
   native.http_archive(
-      name = "protobuf",
+      name = "tb_protobuf",
       urls = ["http://mirror.bazel.build/github.com/google/protobuf/archive/0b059a3d8a8f8aa40dde7bea55edca4ec5dfea66.tar.gz"],
       sha256 = "6d43b9d223ce09e5d4ce8b0060cb8a7513577a35a64c7e3dad10f0703bf3ad93",
       strip_prefix = "protobuf-0b059a3d8a8f8aa40dde7bea55edca4ec5dfea66",
@@ -44,7 +46,7 @@ def tensorboard_workspace():
   # and com_google_protobuf_cc to enable proto_library support in bazel.
   # Unfortunately there is no way to alias http_archives at the moment.
   native.http_archive(
-      name = "com_google_protobuf",
+      name = "tb_com_google_protobuf",
       urls = ["http://mirror.bazel.build/github.com/google/protobuf/archive/0b059a3d8a8f8aa40dde7bea55edca4ec5dfea66.tar.gz"],
       sha256 = "6d43b9d223ce09e5d4ce8b0060cb8a7513577a35a64c7e3dad10f0703bf3ad93",
       strip_prefix = "protobuf-0b059a3d8a8f8aa40dde7bea55edca4ec5dfea66",
